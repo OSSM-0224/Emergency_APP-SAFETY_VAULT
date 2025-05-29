@@ -92,6 +92,7 @@
         android:layout_marginHorizontal="30dp"
         android:layout_marginTop="72dp"
         android:backgroundTint="@color/ruby"
+        android:outlineAmbientShadowColor="@color/black"
         android:text="Signup"
         android:textAllCaps="false"
         android:textColor="@android:color/white"

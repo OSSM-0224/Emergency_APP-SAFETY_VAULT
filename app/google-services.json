@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "443629136807",
+    "project_id": "emergency-app-safety-vault",
+    "storage_bucket": "emergency-app-safety-vault.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:443629136807:android:7d371db07f5c3d0985a482",
+        "android_client_info": {
+          "package_name": "com.example.emergencyapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8VTFV6SwBsrdaNDZh1X5M016f9UkgmmQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
