@@ -30,59 +30,65 @@ public class NotificationHelper {
         }
 
         String userId = auth.getCurrentUser().getUid();
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(userId);
 
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference usernameRef = FirebaseDatabase.getInstance().getReference("Users").child(userId);
+        DatabaseReference detailsRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
+
+        final String[] username = {"Guest"};
+        final String[] address = {"Not Available"};
+        final String[] destination = {"Not Available"};
+        final String[] companions = {"Not Available"};
+        final String[] family = {"Not Available"};
+        final String[] bloodGroup = {"Not Available"};
+
+        // Fetch data asynchronously
+        usernameRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String username = "Guest", address = "Not Available", destination = "Not Available",
-                        companions = "Not Available", family = "Not Available", bloodGroup = "Not Available";
-
-                if (snapshot.exists()) {
-                    // Extract data from Firebase
-                    username = snapshot.child("username").getValue(String.class);
-                    address = snapshot.child("address").getValue(String.class);
-                    destination = snapshot.child("destination").getValue(String.class);
-                    companions = snapshot.child("companions").getValue(String.class);
-                    family = snapshot.child("family").getValue(String.class);
-                    bloodGroup = snapshot.child("bloodGroup").getValue(String.class);
-
-                    // Save to SharedPreferences as backup for offline
-                    SharedPreferences sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sp.edit();
-                    editor.putString("username", username);
-                    editor.putString("address", address);
-                    editor.putString("destination", destination);
-                    editor.putString("companions", companions);
-                    editor.putString("family", family);
-                    editor.putString("blood", bloodGroup);
-                    editor.apply();
-                } else {
-                    // Firebase data not found, fallback to stored data
-                    SharedPreferences sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                    username = sp.getString("username", "Guest");
-                    address = sp.getString("address", "Not Available");
-                    destination = sp.getString("destination", "Not Available");
-                    companions = sp.getString("companions", "Not Available");
-                    family = sp.getString("family", "Not Available");
-                    bloodGroup = sp.getString("blood", "Not Available");
+                if (snapshot.exists() && snapshot.hasChild("username")) {
+                    username[0] = snapshot.child("username").getValue(String.class);
                 }
 
-                buildAndShowNotification(context, username, address, destination, companions, family, bloodGroup);
+                detailsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            if (snapshot.hasChild("address"))
+                                address[0] = snapshot.child("address").getValue(String.class);
+                            if (snapshot.hasChild("destination"))
+                                destination[0] = snapshot.child("destination").getValue(String.class);
+                            if (snapshot.hasChild("companions"))
+                                companions[0] = snapshot.child("companions").getValue(String.class);
+                            if (snapshot.hasChild("family"))
+                                family[0] = snapshot.child("family").getValue(String.class);
+                            if (snapshot.hasChild("bloodGroup"))
+                                bloodGroup[0] = snapshot.child("bloodGroup").getValue(String.class);
+
+                            // Save to SharedPreferences
+                            SharedPreferences sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sp.edit();
+                            editor.putString("username", username[0]);
+                            editor.putString("address", address[0]);
+                            editor.putString("destination", destination[0]);
+                            editor.putString("companions", companions[0]);
+                            editor.putString("family", family[0]);
+                            editor.putString("blood", bloodGroup[0]);
+                            editor.apply();
+                        }
+
+                        buildAndShowNotification(context, username[0], address[0], destination[0], companions[0], family[0], bloodGroup[0]);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        buildAndShowNotification(context, username[0], address[0], destination[0], companions[0], family[0], bloodGroup[0]);
+                    }
+                });
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Firebase fetch failed, fallback to stored SharedPreferences
-                SharedPreferences sp = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-                String username = sp.getString("username", "Guest");
-                String address = sp.getString("address", "Not Available");
-                String destination = sp.getString("destination", "Not Available");
-                String companions = sp.getString("companions", "Not Available");
-                String family = sp.getString("family", "Not Available");
-                String bloodGroup = sp.getString("blood", "Not Available");
-
-                buildAndShowNotification(context, username, address, destination, companions, family, bloodGroup);
+                buildAndShowNotification(context, username[0], address[0], destination[0], companions[0], family[0], bloodGroup[0]);
             }
         });
     }
@@ -98,11 +104,12 @@ public class NotificationHelper {
                 "🩸 Blood Group: " + bloodGroup;
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground) // replace with actual icon
+                .setSmallIcon(R.drawable.ic_launcher_foreground)  // apna icon yahan use karo
                 .setContentTitle(title)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setAutoCancel(true);
+                .setOngoing(true)          // <-- Ye banata hai notification persistent, swipe se clear nahi hoga
+                .setAutoCancel(false);     // Notification tap pe bhi nahi jayega automatically
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.notify(NOTIFICATION_ID, builder.build());
@@ -117,7 +124,9 @@ public class NotificationHelper {
             channel.setDescription(description);
 
             NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
         }
     }
 }
