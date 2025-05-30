@@ -13,7 +13,7 @@
         android:theme="@style/Theme.EmergencyApp"
         tools:targetApi="31">
         <activity
-            android:name=".SignupActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,7 +25,10 @@
             android:name=".LoginActivity">
         </activity>
         <activity
-            android:name=".MainActivity">
+            android:name=".SignupActivity">
+        </activity>
+        <activity
+            android:name=".UserDetails">
         </activity>
     </application>
 

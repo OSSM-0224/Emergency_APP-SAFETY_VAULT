@@ -8,57 +8,76 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText username, password;
+    EditText username, email, password;
+    Button loginButton;
+    TextView signupText;
 
-    private FirebaseAuth mAuth;
+    FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Initialize Firebase Auth
-        mAuth = FirebaseAuth.getInstance();
-
-        // Initialize UI components
         username = findViewById(R.id.username);
+        email = findViewById(R.id.email);
         password = findViewById(R.id.password);
-        Button loginButton = findViewById(R.id.loginButton);
-        TextView signupText = findViewById(R.id.signupText);
+        loginButton = findViewById(R.id.loginButton);
+        signupText = findViewById(R.id.signupText);
+
+        auth = FirebaseAuth.getInstance();
 
         loginButton.setOnClickListener(v -> {
-            String userEmail = username.getText().toString().trim();
+            String userName = username.getText().toString().trim();
+            String userEmail = email.getText().toString().trim();
             String userPassword = password.getText().toString().trim();
 
+            if (TextUtils.isEmpty(userName)) {
+                Toast.makeText(LoginActivity.this, "Please enter username", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             if (TextUtils.isEmpty(userEmail)) {
-                username.setError("Email is required");
+                Toast.makeText(LoginActivity.this, "Please enter email", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(userEmail).matches()) {
+                Toast.makeText(LoginActivity.this, "Please enter valid email", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (TextUtils.isEmpty(userPassword)) {
-                password.setError("Password is required");
+                Toast.makeText(LoginActivity.this, "Please enter password", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            mAuth.signInWithEmailAndPassword(userEmail, userPassword)
-                    .addOnCompleteListener(this, task -> {
+            if (userPassword.length() < 6) {
+                Toast.makeText(LoginActivity.this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            loginButton.setEnabled(false);
+
+            auth.signInWithEmailAndPassword(userEmail, userPassword)
+                    .addOnCompleteListener(task -> {
+                        loginButton.setEnabled(true);
                         if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
                             Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-                            // Redirect to home screen or main activity
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+
+                            // Username ko Intent me bhejna
+                            Intent intent = new Intent(LoginActivity.this, UserDetails.class);
+                            intent.putExtra("username_key", userName);
+                            startActivity(intent);
                             finish();
                         } else {
-                            Toast.makeText(LoginActivity.this, "Login failed: " + task.getException().getMessage(),
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "Login failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
         });

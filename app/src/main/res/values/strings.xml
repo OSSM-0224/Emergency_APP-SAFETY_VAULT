@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Emergency App</string>
+    <string name="back_button" />
 </resources>

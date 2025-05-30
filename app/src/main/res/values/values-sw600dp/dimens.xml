@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="padding_xsmall">6dp</dimen>
+    <dimen name="padding_small">12dp</dimen>
+    <dimen name="padding_medium">20dp</dimen>
+    <dimen name="padding_large">28dp</dimen>
+    <dimen name="padding_xlarge">36dp</dimen>
+
+    <dimen name="margin_xsmall">6dp</dimen>
+    <dimen name="margin_small">12dp</dimen>
+    <dimen name="margin_medium">20dp</dimen>
+    <dimen name="margin_large">28dp</dimen>
+    <dimen name="margin_xlarge">36dp</dimen>
+
+    <dimen name="text_xsmall">12sp</dimen>
+    <dimen name="text_small">14sp</dimen>
+    <dimen name="text_medium">18sp</dimen>
+    <dimen name="text_large">22sp</dimen>
+    <dimen name="text_xlarge">26sp</dimen>
+    <dimen name="text_huge">34sp</dimen>
+
+    <dimen name="corner_radius_small">6dp</dimen>
+    <dimen name="corner_radius_medium">10dp</dimen>
+    <dimen name="corner_radius_large">18dp</dimen>
+
+    <dimen name="elevation_low">2dp</dimen>
+    <dimen name="elevation_medium">6dp</dimen>
+    <dimen name="elevation_high">10dp</dimen>
+
+    <dimen name="icon_small">28dp</dimen>
+    <dimen name="icon_medium">40dp</dimen>
+    <dimen name="icon_large">52dp</dimen>
+
+    <dimen name="spacing_4">6dp</dimen>
+    <dimen name="spacing_8">10dp</dimen>
+    <dimen name="spacing_12">14dp</dimen>
+    <dimen name="spacing_16">20dp</dimen>
+    <dimen name="spacing_24">28dp</dimen>
+    <dimen name="spacing_32">36dp</dimen>
+    <dimen name="spacing_40">44dp</dimen>
+    <dimen name="spacing_48">52dp</dimen>
+</resources>

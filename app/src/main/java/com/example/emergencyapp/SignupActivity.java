@@ -11,6 +11,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class SignupActivity extends AppCompatActivity {
 
@@ -23,7 +26,7 @@ public class SignupActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_signup); // make sure this matches your XML filename
+        setContentView(R.layout.activity_signup);
 
         username = findViewById(R.id.username);
         email = findViewById(R.id.email);
@@ -45,23 +48,47 @@ public class SignupActivity extends AppCompatActivity {
                 return;
             }
 
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(userEmail).matches()) {
+                Toast.makeText(SignupActivity.this, "Please enter a valid email", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (userPassword.length() < 6) {
+                Toast.makeText(SignupActivity.this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             if (!userPassword.equals(userConfirmPassword)) {
                 Toast.makeText(SignupActivity.this, "Passwords do not match", Toast.LENGTH_SHORT).show();
                 return;
             }
 
+            signupButton.setEnabled(false);
+
             auth.createUserWithEmailAndPassword(userEmail, userPassword)
                     .addOnCompleteListener(task -> {
+                        signupButton.setEnabled(true);
                         if (task.isSuccessful()) {
-                            Toast.makeText(SignupActivity.this, "Signup successful!", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(SignupActivity.this, LoginActivity.class));
-                            finish();
+                            FirebaseUser firebaseUser = auth.getCurrentUser();
+                            String userId = firebaseUser.getUid();
+
+                            DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+                            User userData = new User(user, userEmail);
+                            reference.child(userId).setValue(userData).addOnCompleteListener(dbTask -> {
+                                if (dbTask.isSuccessful()) {
+                                    Toast.makeText(SignupActivity.this, "Signup successful!", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(SignupActivity.this, LoginActivity.class));
+                                    finish();
+                                } else {
+                                    Toast.makeText(SignupActivity.this, "Signup failed: " + dbTask.getException().getMessage(), Toast.LENGTH_LONG).show();
+                                }
+                            });
+
                         } else {
                             Toast.makeText(SignupActivity.this, "Signup failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                         }
                     });
         });
-
         loginRedirect.setOnClickListener(v -> {
             startActivity(new Intent(SignupActivity.this, LoginActivity.class));
         });

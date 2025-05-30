@@ -1,19 +1,35 @@
 package com.example.emergencyapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity {
+
+    FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+
+        auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+
+        if (currentUser == null) {
+            // User not logged in, open SignupActivity
+            startActivity(new Intent(MainActivity.this, SignupActivity.class));
+        } else {
+            // User already logged in, open UserDetails
+            // Pass username from currentUser if you want
+            String username = currentUser.getDisplayName(); // agar set kiya ho to
+            Intent intent = new Intent(MainActivity.this, UserDetails.class);
+            intent.putExtra("username_key", username);
+            startActivity(intent);
+        }
+        finish();  // finish MainActivity so user can't go back here
     }
 }

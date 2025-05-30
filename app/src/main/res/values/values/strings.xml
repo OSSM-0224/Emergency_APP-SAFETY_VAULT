@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Safety Vault</string>
+    <string name="welcome">Welcome!!</string>
+    <string name="just_logo">just logo</string>
+    <string name="be_prepared_for_emergencies_nmanage_your_emergency_kit_easily">Be Prepared for Emergencies! \nManage Your Emergency Kit Easily.</string>
+    <string name="back_button">back_button\n</string>
+    <string name="enter_kit_title_e_g_first_aid_camping">Enter Kit Title (e.g., First Aid, Camping)</string>
+    <string name="profile_picture">Profile Picture</string>
+</resources>

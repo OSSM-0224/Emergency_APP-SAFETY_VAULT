@@ -2,8 +2,9 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="ruby">#D32F2F</color>
+    <color name="ruby">#970000</color>
     <color name="light_gray">#F5F5F5</color>
     <color name="gray">#BDBDBD</color>
     <color name="dark_red">#C2185B</color>
+
 </resources>
