@@ -12,12 +12,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 
 public class UserDetails extends AppCompatActivity {
 
@@ -28,13 +27,17 @@ public class UserDetails extends AppCompatActivity {
     FirebaseAuth auth;
     DatabaseReference databaseReference;
 
+    TextView usernameTV;
+
+    String username;  // store username once
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
 
-        // Initialize views
-        TextView usernameTV = findViewById(R.id.username);
+        // Init views
+        usernameTV = findViewById(R.id.username);
         backBtn = findViewById(R.id.backBtn);
         profileImage = findViewById(R.id.profileImage);
         btnUploadPhoto = findViewById(R.id.btnUploadPhoto);
@@ -51,50 +54,53 @@ public class UserDetails extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
 
-        // Initialize Firebase database reference
+        if (auth.getCurrentUser() == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
+        // Get username from FirebaseAuth (displayName)
+        username = auth.getCurrentUser().getDisplayName();
+        if (username == null || username.isEmpty()) {
+            username = "Guest";  // fallback
+        }
+        usernameTV.setText(username);
+
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
         backBtn.setOnClickListener(v -> finish());
 
-        btnUploadPhoto.setOnClickListener(v -> {
-            Toast.makeText(this, "Upload photo clicked (implement later)", Toast.LENGTH_SHORT).show();
-        });
+        btnUploadPhoto.setOnClickListener(v ->
+                Toast.makeText(this, "Upload photo clicked (coming soon!)", Toast.LENGTH_SHORT).show()
+        );
 
-        // Get current user id
         String userId = auth.getCurrentUser().getUid();
 
-        // Load user data from Firebase and set to views
-        databaseReference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId);
+        userRef.child("username").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    User user = snapshot.getValue(User.class);
-                    if (user != null) {
-                        usernameTV.setText(user.username);
-                        txtAddress.setText(user.address);
-                        txtDestination.setText(user.destination);
-                        txtBlood.setText(user.bloodGroup);
-                        txtFamily.setText(user.family);
-                        txtCompanions.setText(user.companions);
-
-                        // Disable save if details exist, enable update
-                        btnSave.setEnabled(false);
-                        btnUpdate.setEnabled(true);
+                    String fetchedUsername = snapshot.getValue(String.class);
+                    if (fetchedUsername != null && !fetchedUsername.isEmpty()) {
+                        usernameTV.setText(fetchedUsername);
+                    } else {
+                        usernameTV.setText("Guest");
                     }
+                } else {
+                    usernameTV.setText("Guest");
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError error) {
-                Toast.makeText(UserDetails.this, "Failed to load user data.", Toast.LENGTH_SHORT).show();
+                usernameTV.setText("Guest");
+                Toast.makeText(UserDetails.this, "Failed to load username", Toast.LENGTH_SHORT).show();
             }
         });
 
-        // We don't need to get username from Intent anymore
-        // String username = getIntent().getStringExtra("username_key");
-        String email = auth.getCurrentUser().getEmail(); // Get logged-in user's email
-
-        btnSave.setOnClickListener(v -> saveUserDetails(usernameTV.getText().toString(), email));
+        btnSave.setOnClickListener(v -> saveUserDetails());
 
         btnUpdate.setOnClickListener(v -> updateUserDetails());
 
@@ -104,12 +110,86 @@ public class UserDetails extends AppCompatActivity {
             startActivity(new Intent(UserDetails.this, LoginActivity.class));
             finish();
         });
+        loadUserData(userId);
     }
 
+    private void loadUserData(String userId) {
+        databaseReference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    // Load user details except username & email
+                    UserDetailsData userDetails = snapshot.getValue(UserDetailsData.class);
+                    if (userDetails != null) {
+                        txtAddress.setText(userDetails.address);
+                        txtDestination.setText(userDetails.destination);
+                        txtBlood.setText(userDetails.bloodGroup);
+                        txtFamily.setText(userDetails.family);
+                        txtCompanions.setText(userDetails.companions);
+
+                        btnSave.setEnabled(false);
+                        btnUpdate.setEnabled(true);
+                    }
+                } else {
+                    btnSave.setEnabled(true);
+                    btnUpdate.setEnabled(false);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Toast.makeText(UserDetails.this, "Failed to load user data.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void saveUserDetails() {
+        if (!validateInputs()) return;
+
+        String userId = auth.getCurrentUser().getUid();
+
+        // Save only address, destination, bloodGroup, family, companions
+        UserDetailsData userDetails = new UserDetailsData(
+                txtAddress.getText().toString().trim(),
+                txtDestination.getText().toString().trim(),
+                txtBlood.getText().toString().trim(),
+                txtFamily.getText().toString().trim(),
+                txtCompanions.getText().toString().trim()
+        );
+
+        databaseReference.child(userId).setValue(userDetails)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "Details saved successfully!", Toast.LENGTH_SHORT).show();
+                        btnSave.setEnabled(false);
+                        btnUpdate.setEnabled(true);
+                    } else {
+                        Toast.makeText(this, "Failed to save details: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
 
     private void updateUserDetails() {
-        // Similar to save, you can implement update if needed
-        Toast.makeText(this, "Update feature coming soon!", Toast.LENGTH_SHORT).show();
+        if (!validateInputs()) return;
+
+        String userId = auth.getCurrentUser().getUid();
+
+        UserDetailsData updatedDetails = new UserDetailsData(
+                txtAddress.getText().toString().trim(),
+                txtDestination.getText().toString().trim(),
+                txtBlood.getText().toString().trim(),
+                txtFamily.getText().toString().trim(),
+                txtCompanions.getText().toString().trim()
+        );
+
+        databaseReference.child(userId).setValue(updatedDetails)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "Details updated successfully!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, "Failed to update details: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
     }
 
     private boolean validateInputs() {
@@ -131,18 +211,13 @@ public class UserDetails extends AppCompatActivity {
         return true;
     }
 
-    // User class to hold data
-    public static class User {
-        public String username, email, address, destination, bloodGroup, family, companions;
+    // Separate class for user details stored in database (without username and email)
+    public static class UserDetailsData {
+        public String address, destination, bloodGroup, family, companions;
 
-        // Default constructor required for Firebase
-        public User() {
-        }
+        public UserDetailsData() {}
 
-        public User(String username, String email, String address, String destination,
-                    String bloodGroup, String family, String companions) {
-            this.username = username;
-            this.email = email;
+        public UserDetailsData(String address, String destination, String bloodGroup, String family, String companions) {
             this.address = address;
             this.destination = destination;
             this.bloodGroup = bloodGroup;
