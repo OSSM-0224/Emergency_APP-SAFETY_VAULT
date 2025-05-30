@@ -1,6 +1,7 @@
 package com.example.emergencyapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
@@ -148,7 +149,6 @@ public class UserDetails extends AppCompatActivity {
 
         String userId = auth.getCurrentUser().getUid();
 
-        // Save only address, destination, bloodGroup, family, companions
         UserDetailsData userDetails = new UserDetailsData(
                 txtAddress.getText().toString().trim(),
                 txtDestination.getText().toString().trim(),
@@ -163,6 +163,7 @@ public class UserDetails extends AppCompatActivity {
                         Toast.makeText(this, "Details saved successfully!", Toast.LENGTH_SHORT).show();
                         btnSave.setEnabled(false);
                         btnUpdate.setEnabled(true);
+                        saveToPreferencesAndShowNotification(userId);
                     } else {
                         Toast.makeText(this, "Failed to save details: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
@@ -186,11 +187,40 @@ public class UserDetails extends AppCompatActivity {
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(this, "Details updated successfully!", Toast.LENGTH_SHORT).show();
+                        saveToPreferencesAndShowNotification(userId);
                     } else {
                         Toast.makeText(this, "Failed to update details: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
     }
+    private void saveToPreferencesAndShowNotification(String userId) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("users").child(userId);
+        ref.get().addOnSuccessListener(snapshot -> {
+            if (snapshot.exists()) {
+                String address = snapshot.child("address").getValue(String.class);
+                String destination = snapshot.child("destination").getValue(String.class);
+                String companions = snapshot.child("companions").getValue(String.class);
+                String family = snapshot.child("family").getValue(String.class);
+                String blood = snapshot.child("bloodGroup").getValue(String.class);
+
+                SharedPreferences sp = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+
+                editor.putString("address", (address != null && !address.isEmpty()) ? address : "None");
+                editor.putString("destination", (destination != null && !destination.isEmpty()) ? destination : "None");
+                editor.putString("companions", (companions != null && !companions.isEmpty()) ? companions : "None");
+                editor.putString("family", (family != null && !family.isEmpty()) ? family : "None");
+                editor.putString("blood", (blood != null && !blood.isEmpty()) ? blood : "None");
+                editor.putString("username", (username != null && !username.isEmpty()) ? username : "Guest");
+
+                editor.apply();
+
+                Intent serviceIntent = new Intent(this, NotificationService.class);
+                startService(serviceIntent);
+            }
+        });
+    }
+
 
     private boolean validateInputs() {
         if (TextUtils.isEmpty(txtAddress.getText().toString().trim())) {
