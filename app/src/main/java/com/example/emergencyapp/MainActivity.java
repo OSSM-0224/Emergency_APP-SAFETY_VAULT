@@ -26,10 +26,10 @@ public class MainActivity extends AppCompatActivity {
             // User already logged in, open UserDetails
             // Pass username from currentUser if you want
             String username = currentUser.getDisplayName(); // agar set kiya ho to
-            Intent intent = new Intent(MainActivity.this, UserDetails.class);
+            Intent intent = new Intent(MainActivity.this, HomeActivity.class);
             intent.putExtra("username_key", username);
             startActivity(intent);
         }
-        finish();  // finish MainActivity so user can't go back here
+        finish();
     }
 }

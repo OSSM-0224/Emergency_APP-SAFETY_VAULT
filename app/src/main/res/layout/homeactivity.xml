@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/welcomeText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:text="Welcome to Emergency App"
+        android:textColor="@color/white"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/clash_display_bold"
+        android:gravity="center"
+        android:letterSpacing="0.05"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Grid of Cards -->
+    <androidx.gridlayout.widget.GridLayout
+        android:id="@+id/gridMenu"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="24dp"
+        app:alignmentMode="alignMargins"
+        app:columnCount="2"
+        app:rowCount="2"
+        app:layout_constraintTop_toBottomOf="@id/welcomeText"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:useDefaultMargins="true">
+
+        <!-- Contact Card -->
+        <androidx.cardview.widget.CardView
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:id="@+id/contactCard"
+            android:layout_width="0dp"
+            android:background="@drawable/gradient_background"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"
+            app:layout_column="0"
+            app:layout_row="0"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/iconContact"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:src="@drawable/ic_contact"
+                    android:contentDescription="Contact Icon"
+                    app:tint="@color/ruby" />
+
+                <TextView
+                    android:id="@+id/cardTitleContact"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Contacts"
+                    android:textColor="@color/ruby"
+                    android:fontFamily="@font/clash_display_regular"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- User Card -->
+        <!-- Improved User Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/userCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"
+            app:layout_column="1"
+            app:layout_row="0"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/gradient_background">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <ImageView
+                android:id="@+id/iconUser"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/account"
+                android:contentDescription="User Icon"
+                app:tint="@color/ruby" />
+
+            <TextView
+                android:id="@+id/cardTitleUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User"
+                android:textColor="@color/ruby"
+                android:fontFamily="@font/clash_display_regular"
+                android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- SOS Card -->
+        <androidx.cardview.widget.CardView
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:id="@+id/sosCard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"
+            app:layout_column="0"
+            app:layout_row="1"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            android:background="@drawable/gradient_background">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/iconSos"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:src="@drawable/ic_sos"
+                    android:contentDescription="SOS Icon"
+                    app:tint="@color/ruby" />
+
+                <TextView
+                    android:id="@+id/cardTitleSos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SOS Emergency"
+                    android:textColor="@color/ruby"
+                    android:fontFamily="@font/clash_display_regular"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Items Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/itemsCard"
+            android:foreground="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:layout_columnWeight="1"
+            app:layout_rowWeight="1"
+            app:layout_column="1"
+            app:layout_row="1"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp"
+            android:background="@drawable/gradient_background">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/iconItems"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:src="@drawable/ic_item"
+                    android:contentDescription="Items Icon"
+                    app:tint="@color/ruby" />
+
+                <TextView
+                    android:id="@+id/cardTitleItems"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Items Details"
+                    android:textColor="@color/ruby"
+                    android:fontFamily="@font/clash_display_regular"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="8dp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+    </androidx.gridlayout.widget.GridLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

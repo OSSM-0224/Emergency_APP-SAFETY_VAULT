@@ -72,7 +72,7 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
 
                             // Username ko Intent me bhejna
-                            Intent intent = new Intent(LoginActivity.this, UserDetails.class);
+                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                             intent.putExtra("username_key", userName);
                             startActivity(intent);
                             finish();

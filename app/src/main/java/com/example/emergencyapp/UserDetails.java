@@ -18,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -269,8 +270,15 @@ public class UserDetails extends AppCompatActivity {
     }
 
     private void uploadPhotoToFirebase(Uri uri) {
-        String userId = auth.getCurrentUser().getUid();
-        StorageReference fileRef = storageReference.child(userId + ".jpg");
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "User not signed in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userId = user.getUid();
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("profile_images");
+        StorageReference fileRef = storageRef.child(userId + ".jpg");
 
         fileRef.putFile(uri)
                 .addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
@@ -281,6 +289,7 @@ public class UserDetails extends AppCompatActivity {
                 }))
                 .addOnFailureListener(e -> Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
+
 
     private boolean validateInputs() {
         if (TextUtils.isEmpty(txtAddress.getText().toString().trim())) {
